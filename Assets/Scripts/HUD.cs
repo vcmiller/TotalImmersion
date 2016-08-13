@@ -7,6 +7,7 @@ public class HUD : MonoBehaviour {
 
     public Text ammoCount;
     public Slider healthbar;
+    public Slider battery;
     public Animator gameOver;
     public Animator gameOverBG;
     public CanvasGroup hud;
@@ -20,6 +21,7 @@ public class HUD : MonoBehaviour {
 	void Update () {
         ammoCount.text = "x " + FindObjectOfType<Pistol>().ammo;
         healthbar.value = player.health / 100;
+        battery.value = player.battery / 100;
 
         hud.alpha = player.health > 0 ? 1 : 0;
 

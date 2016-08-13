@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Pistol : Weapon {
     public int ammo = 5;
+    public AudioClip shotSound;
 
     public override void SetFiring(bool firing) {
         if (ammo > 0 || !firing) {
@@ -10,7 +11,7 @@ public class Pistol : Weapon {
 
             if (firing && ammo > 0) {
                 ammo--;
-
+                AudioSource.PlayClipAtPoint(shotSound, transform.position);
                 RaycastHit hit;
                 if (Physics.Raycast(player.head.position, player.head.forward, out hit)) {
                     Enemy enemy = hit.collider.GetComponent<Enemy>();

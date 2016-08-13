@@ -10,6 +10,9 @@ public class PlayerControl : MonoBehaviour {
     public float jumpSpeed = 2.0f;
     public float health = 100;
     private Light flashlight;
+    public float battery = 100;
+
+    public AudioClip hurtSound;
 
     private Weapon[] weapons;
     public int ActiveWeapon = 0;
@@ -17,6 +20,7 @@ public class PlayerControl : MonoBehaviour {
     public bool grounded { get; private set; }
 
     private int ladders = 0;
+    public bool batteryCharging = false;
 
 	// Use this for initialization
 	void Start () {
@@ -36,11 +40,14 @@ public class PlayerControl : MonoBehaviour {
 
     public void Damage(float damage) {
         health -= damage;
+
         if (health <= 0) {
             health = 0;
             enabled = false;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+        } else {
+            AudioSource.PlayClipAtPoint(hurtSound, transform.position);
         }
     }
 
@@ -64,8 +71,25 @@ public class PlayerControl : MonoBehaviour {
             transform.position += Vector3.up * Input.GetAxis("Vertical") * Time.deltaTime * climbSpeed;
         }
 
-        if (Input.GetKeyDown(KeyCode.F)) {
+        if (Input.GetKeyDown(KeyCode.F) && !batteryCharging) {
             flashlight.enabled = !flashlight.enabled;
+        }
+
+        if (flashlight.enabled) {
+            if (batteryCharging) {
+                flashlight.enabled = false;
+            }
+            battery = Mathf.Max(battery - Time.deltaTime * 5, 0);
+            if (battery == 0) {
+                batteryCharging = true;
+            }
+        }
+
+        if (!flashlight.enabled) {
+            battery = Mathf.Min(battery + Time.deltaTime * 5, 100);
+            if (battery == 100) {
+                batteryCharging = false;
+            }
         }
 
         grounded = IsGrounded();

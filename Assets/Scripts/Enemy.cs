@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour {
     private NavMeshAgent agent;
     private Animator sprite;
     private bool dead = false;
+    public AudioClip hurtSound;
 
     public Waypoint patrolTarget;
 
@@ -39,6 +40,11 @@ public class Enemy : MonoBehaviour {
 
     public void Damage(float damage) {
         Health -= damage;
+
+        if (!dead) {
+            AudioSource.PlayClipAtPoint(hurtSound, transform.position);
+        }
+
         if (Health <= 0) {
             Die();
         }

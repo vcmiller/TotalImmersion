@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Fist : Weapon {
     private CooldownTimer punch;
+    public AudioClip punchSound;
 
     new public void Awake() {
         base.Awake();
@@ -15,6 +16,7 @@ public class Fist : Weapon {
 
         if (firing && punch.Use) {
 
+            AudioSource.PlayClipAtPoint(punchSound, transform.position);
             RaycastHit hit;
             if (Physics.Raycast(player.head.position, player.head.forward, out hit, 2.0f)) {
                 Enemy enemy = hit.collider.GetComponent<Enemy>();
