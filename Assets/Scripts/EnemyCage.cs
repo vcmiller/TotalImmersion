@@ -34,10 +34,4 @@ public class EnemyCage : MonoBehaviour {
             return true;
         }
     }
-
-    void OnTriggerEnter(Collider other) {
-        if (other.CompareTag("Player")) {
-            enemy.GetComponent<Enemy>().alerted = true;
-        }
-    }
 }

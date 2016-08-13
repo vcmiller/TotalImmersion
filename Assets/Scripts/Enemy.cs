@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour {
     private Transform target;
-    public bool alerted = false;
+    private float alertness = 0;
     private NavMeshAgent agent;
     private Animator sprite;
     private bool dead = false;
@@ -40,6 +40,7 @@ public class Enemy : MonoBehaviour {
 
     public void Damage(float damage) {
         Health -= damage;
+        Alert(1.0f);
 
         if (!dead) {
             AudioSource.PlayClipAtPoint(hurtSound, transform.position);
@@ -55,6 +56,10 @@ public class Enemy : MonoBehaviour {
             dead = true;
             sprite.SetBool("Dead", true);
             agent.enabled = false;
+
+            foreach (AudioSource src in GetComponents<AudioSource>()) {
+                Destroy(src);
+            }
         }
     }
 
@@ -73,6 +78,14 @@ public class Enemy : MonoBehaviour {
         }
 
         return false;
+    }
+
+    public void Alert(float amount) {
+        float f = alertness;
+        alertness += amount;
+        if (alertness >= 1.0f && f < 1.0f) {
+            GetComponent<AudioSource>().Play();
+        }
     }
 
     // Update is called once per frame
@@ -96,8 +109,12 @@ public class Enemy : MonoBehaviour {
 
         if (!dead) {
 
-            if (!alerted && PlayerInView()) {
-                alerted = true;
+            if (alertness < 1.0f && PlayerInView()) {
+                float r = 10.0f;
+                if (target.GetComponentInChildren<Light>().enabled) {
+                    r = 20.0f;
+                }
+                Alert(r / Vector3.Magnitude(transform.position - target.position));
             }
 
             float d = Vector3.Dot(toPlayer, forward);
@@ -119,7 +136,7 @@ public class Enemy : MonoBehaviour {
             
 
 
-            if (alerted) {
+            if (alertness >= 1.0f) {
                 Vector3 lastPos = transform.position;
                 Vector3 targetPos;
                 
