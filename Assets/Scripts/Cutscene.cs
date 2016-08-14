@@ -15,7 +15,12 @@ public class Cutscene : MonoBehaviour {
         }
 
         slides[0].alpha = 1.0f;
-	}
+
+        AudioSource src = slides[0].GetComponent<AudioSource>();
+        if (src != null) {
+            src.Play();
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -23,6 +28,11 @@ public class Cutscene : MonoBehaviour {
             if (slide < slides.Length - 1) {
                 slides[slide].alpha = 0;
                 slides[++slide].alpha = 1;
+
+                AudioSource src = slides[slide].GetComponent<AudioSource>();
+                if (src != null) {
+                    src.Play();
+                }
             } else if (!end) {
                 Application.LoadLevel("Level 1");
             } else {
