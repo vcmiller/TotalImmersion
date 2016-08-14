@@ -133,9 +133,9 @@ public class Enemy : MonoBehaviour {
         if (!dead) {
 
             if (alertness < 4.0f && PlayerInView()) {
-                float r = 40.0f;
+                float r = 20.0f;
                 if (target.GetComponentInChildren<Light>().enabled) {
-                    r = 100.0f;
+                    r = 50.0f;
                 }
                 float f = r / Vector3.Magnitude(transform.position - target.position);
                 if (f > 1) {
