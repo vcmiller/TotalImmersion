@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class Cutscene : MonoBehaviour {
     private CanvasGroup[] slides;
     private int slide = 0;
+    private bool end = false;
 
 	// Use this for initialization
 	void Start () {
@@ -22,8 +23,10 @@ public class Cutscene : MonoBehaviour {
             if (slide < slides.Length - 1) {
                 slides[slide].alpha = 0;
                 slides[++slide].alpha = 1;
-            } else {
+            } else if (!end) {
                 Application.LoadLevel("Level 1");
+            } else {
+                Application.Quit();
             }
         }
 	}
