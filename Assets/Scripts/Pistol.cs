@@ -13,7 +13,7 @@ public class Pistol : Weapon {
                 ammo--;
 
                 foreach (Enemy enemy in FindObjectsOfType<Enemy>()) {
-                    enemy.Alert(60.0f / Vector3.Distance(transform.position, enemy.transform.position));
+                    enemy.Alert(40.0f / Vector3.Distance(transform.position, enemy.transform.position));
                 }
 
 
@@ -22,7 +22,7 @@ public class Pistol : Weapon {
                 if (Physics.Raycast(player.head.position, player.head.forward, out hit)) {
                     Enemy enemy = hit.collider.GetComponent<Enemy>();
                     if (enemy != null) {
-                        enemy.Damage(50);
+                        enemy.Damage(100);
                     }
                 }
             }

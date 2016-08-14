@@ -99,7 +99,10 @@ public class Enemy : MonoBehaviour {
         float f = alertness;
         alertness += amount;
         if (alertness >= 1.0f && f < 1.0f) {
-            GetComponent<AudioSource>().Play();
+            AudioSource src = GetComponent<AudioSource>();
+            if (src != null) {
+                src.Play();
+            }
             agent.speed = 8;
         }
 
@@ -130,12 +133,12 @@ public class Enemy : MonoBehaviour {
         if (!dead) {
 
             if (alertness < 4.0f && PlayerInView()) {
-                float r = 20.0f;
+                float r = 40.0f;
                 if (target.GetComponentInChildren<Light>().enabled) {
                     r = 100.0f;
                 }
                 float f = r / Vector3.Magnitude(transform.position - target.position);
-                if (f > 0.5f) {
+                if (f > 1) {
                     Alert(f * Time.deltaTime);
                 }
             }
@@ -160,6 +163,10 @@ public class Enemy : MonoBehaviour {
                 alertness -= Time.deltaTime * 0.2f;
                 if (alertness < 1) {
                     agent.speed = moveSpeed;
+                }
+
+                if (alertness < 0) {
+                    alertness = 0;
                 }
             }
 
