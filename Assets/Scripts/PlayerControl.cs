@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerControl : MonoBehaviour {
     private Rigidbody rigidbody;
     public Transform head;
+	public float moveSpeedConst = 5.0f;
     public float moveSpeed = 5.0f;
     public float climbSpeed = 3.0f;
     public float mouseSensitivity = 2.0f;
@@ -24,6 +25,9 @@ public class PlayerControl : MonoBehaviour {
 
     public bool batteryCharging = false;
 
+	public float defHeadHeight;
+	public bool crouching;
+
 	// Use this for initialization
 	void Start () {
         rigidbody = GetComponent<Rigidbody>();
@@ -38,6 +42,8 @@ public class PlayerControl : MonoBehaviour {
         }
 
         flashlight = GetComponentInChildren<Light>();
+
+		defHeadHeight = head.transform.localPosition.y;
 	}
 
     public void Damage(float damage) {
@@ -67,6 +73,16 @@ public class PlayerControl : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+
+		crouching = Input.GetKey (KeyCode.LeftControl);
+		if (Input.GetKey (KeyCode.LeftControl)) {
+			head.transform.localPosition = Vector3.up * Mathf.Lerp (head.transform.localPosition.y, defHeadHeight / 2, 0.5f);
+		} else {
+			head.transform.localPosition = Vector3.up * Mathf.Lerp (head.transform.localPosition.y, defHeadHeight, 0.5f);
+		}
+
+		moveSpeed = moveSpeedConst * (head.transform.localPosition.y/defHeadHeight);
+
         rigidbody.useGravity = true;
 		if (ladders > 0) {
 			if(Input.GetKeyDown(KeyCode.Space)||Input.GetKeyDown(KeyCode.E))

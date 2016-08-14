@@ -135,8 +135,11 @@ public class Enemy : MonoBehaviour {
             if (alertness < 4.0f && PlayerInView()) {
                 float r = 20.0f;
                 if (target.GetComponentInChildren<Light>().enabled) {
-                    r = 50.0f;
+                    r *= 2.5f;
                 }
+				if (target.GetComponent<PlayerControl> ().crouching) {
+					r /= 1.5f;
+				}
                 float f = r / Vector3.Magnitude(transform.position - target.position);
                 if (f > 1) {
                     Alert(f * Time.deltaTime);
