@@ -90,7 +90,7 @@ public class PlayerControl : MonoBehaviour {
         }
 
         if (!flashlight.enabled) {
-            battery = Mathf.Min(battery + Time.deltaTime * 5, 100);
+            battery = Mathf.Min(battery + Time.deltaTime * 8, 100);
             if (battery == 100) {
                 batteryCharging = false;
             }
