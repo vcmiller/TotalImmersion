@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class Cutscene : MonoBehaviour {
     private CanvasGroup[] slides;
     private int slide = 0;
-    private bool end = false;
+    public bool end = false;
 
 	// Use this for initialization
 	void Start () {
