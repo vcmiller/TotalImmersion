@@ -12,6 +12,8 @@ public class HUD : MonoBehaviour {
     public Animator gameOverBG;
     public CanvasGroup hud;
 
+	private int heldRestart = 0;
+
 	// Use this for initialization
 	void Start () {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>();
@@ -29,5 +31,16 @@ public class HUD : MonoBehaviour {
             gameOver.SetTrigger("GameOver");
             gameOverBG.SetTrigger("GameOver");
         }
+
+
+		if (Input.GetKey (KeyCode.R)) {
+			heldRestart++;
+			print (heldRestart);
+			if (heldRestart > 60) {
+				Application.LoadLevel (Application.loadedLevel);
+			}
+		} else {
+			heldRestart = 0;
+		}
 	}
 }
