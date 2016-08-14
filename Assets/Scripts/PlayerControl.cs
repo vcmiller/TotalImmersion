@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerControl : MonoBehaviour {
     private Rigidbody rigidbody;
     public Transform head;
+	public float moveSpeedConst = 5.0f;
     public float moveSpeed = 5.0f;
     public float climbSpeed = 3.0f;
     public float mouseSensitivity = 2.0f;
@@ -20,7 +21,12 @@ public class PlayerControl : MonoBehaviour {
     public bool grounded { get; private set; }
 
     private int ladders = 0;
+	private bool onLadder;
+
     public bool batteryCharging = false;
+
+	public float defHeadHeight;
+	public bool crouching;
 
 	// Use this for initialization
 	void Start () {
@@ -36,6 +42,8 @@ public class PlayerControl : MonoBehaviour {
         }
 
         flashlight = GetComponentInChildren<Light>();
+
+		defHeadHeight = head.transform.localPosition.y;
 	}
 
     public void Damage(float damage) {
@@ -65,15 +73,31 @@ public class PlayerControl : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+
+		crouching = Input.GetKey (KeyCode.LeftControl);
+		if (Input.GetKey (KeyCode.LeftControl)) {
+			head.transform.localPosition = Vector3.up * Mathf.Lerp (head.transform.localPosition.y, defHeadHeight / 2, 0.5f);
+		} else {
+			head.transform.localPosition = Vector3.up * Mathf.Lerp (head.transform.localPosition.y, defHeadHeight, 0.5f);
+		}
+
+		moveSpeed = moveSpeedConst * (head.transform.localPosition.y/defHeadHeight);
+
         rigidbody.useGravity = true;
-        if (ladders > 0) {
-            rigidbody.useGravity = false;
-            if (Input.GetAxis("Vertical") != 0) {
-                transform.position += Vector3.up * Time.deltaTime * climbSpeed;
-            } else {
-                transform.position += Vector3.down * Time.deltaTime * climbSpeed;
-            }
-        }
+		if (ladders > 0) {
+			if(Input.GetKeyDown(KeyCode.Space)||Input.GetKeyDown(KeyCode.E))
+				onLadder = !onLadder;
+			if (onLadder) {
+				rigidbody.useGravity = false;
+				if (Input.GetAxis ("Vertical") != 0) {
+					transform.position += Vector3.up * Time.deltaTime * climbSpeed;
+				} else {
+					transform.position += Vector3.down * Time.deltaTime * climbSpeed;
+				}
+			}
+		} else {
+			onLadder = false; 
+		}
 
         if (Input.GetKeyDown(KeyCode.F) && !batteryCharging) {
             flashlight.enabled = !flashlight.enabled;
@@ -97,8 +121,11 @@ public class PlayerControl : MonoBehaviour {
         }
 
         grounded = IsGrounded();
-        Vector3 movement = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal");
-        rigidbody.MovePosition(transform.position + movement * Time.deltaTime * moveSpeed);
+
+		if (!onLadder) {
+			Vector3 movement = transform.forward * Input.GetAxis ("Vertical") + transform.right * Input.GetAxis ("Horizontal");
+			rigidbody.MovePosition (transform.position + movement * Time.deltaTime * moveSpeed);
+		}
 
         transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSensitivity, 0);
         head.Rotate(-Input.GetAxis("Mouse Y") * mouseSensitivity, 0, 0, Space.Self);
