@@ -20,6 +20,8 @@ public class PlayerControl : MonoBehaviour {
     public bool grounded { get; private set; }
 
     private int ladders = 0;
+	private bool onLadder;
+
     public bool batteryCharging = false;
 
 	// Use this for initialization
@@ -66,14 +68,20 @@ public class PlayerControl : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         rigidbody.useGravity = true;
-        if (ladders > 0) {
-            rigidbody.useGravity = false;
-            if (Input.GetAxis("Vertical") != 0) {
-                transform.position += Vector3.up * Time.deltaTime * climbSpeed;
-            } else {
-                transform.position += Vector3.down * Time.deltaTime * climbSpeed;
-            }
-        }
+		if (ladders > 0) {
+			if(Input.GetKeyDown(KeyCode.Space)||Input.GetKeyDown(KeyCode.E))
+				onLadder = !onLadder;
+			if (onLadder) {
+				rigidbody.useGravity = false;
+				if (Input.GetAxis ("Vertical") != 0) {
+					transform.position += Vector3.up * Time.deltaTime * climbSpeed;
+				} else {
+					transform.position += Vector3.down * Time.deltaTime * climbSpeed;
+				}
+			}
+		} else {
+			onLadder = false; 
+		}
 
         if (Input.GetKeyDown(KeyCode.F) && !batteryCharging) {
             flashlight.enabled = !flashlight.enabled;
@@ -97,8 +105,11 @@ public class PlayerControl : MonoBehaviour {
         }
 
         grounded = IsGrounded();
-        Vector3 movement = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal");
-        rigidbody.MovePosition(transform.position + movement * Time.deltaTime * moveSpeed);
+
+		if (!onLadder) {
+			Vector3 movement = transform.forward * Input.GetAxis ("Vertical") + transform.right * Input.GetAxis ("Horizontal");
+			rigidbody.MovePosition (transform.position + movement * Time.deltaTime * moveSpeed);
+		}
 
         transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSensitivity, 0);
         head.Rotate(-Input.GetAxis("Mouse Y") * mouseSensitivity, 0, 0, Space.Self);
