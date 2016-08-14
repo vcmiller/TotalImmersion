@@ -21,7 +21,7 @@ public class Fist : Weapon {
             if (Physics.Raycast(player.head.position, player.head.forward, out hit, 2.0f)) {
                 Enemy enemy = hit.collider.GetComponent<Enemy>();
                 if (enemy != null) {
-                    enemy.Damage(50);
+                    enemy.Damage(enemy.alertness > 1 ? 50 : 100);
                 }
             }
         }

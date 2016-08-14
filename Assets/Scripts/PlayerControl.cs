@@ -66,9 +66,13 @@ public class PlayerControl : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         rigidbody.useGravity = true;
-        if (Input.GetAxis("Vertical") != 0 && ladders > 0) {
+        if (ladders > 0) {
             rigidbody.useGravity = false;
-            transform.position += Vector3.up * Input.GetAxis("Vertical") * Time.deltaTime * climbSpeed;
+            if (Input.GetAxis("Vertical") != 0) {
+                transform.position += Vector3.up * Input.GetAxis("Vertical") * Time.deltaTime * climbSpeed;
+            } else {
+                transform.position += Vector3.down * Time.deltaTime * climbSpeed;
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.F) && !batteryCharging) {

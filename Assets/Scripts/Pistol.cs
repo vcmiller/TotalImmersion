@@ -13,7 +13,7 @@ public class Pistol : Weapon {
                 ammo--;
 
                 foreach (Enemy enemy in FindObjectsOfType<Enemy>()) {
-                    enemy.Alert(20.0f / Vector3.Distance(transform.position, enemy.transform.position));
+                    enemy.Alert(60.0f / Vector3.Distance(transform.position, enemy.transform.position));
                 }
 
 

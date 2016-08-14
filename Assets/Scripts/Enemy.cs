@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour {
     private Transform target;
-    private float alertness = 0;
+    public float alertness { get; private set; }
     private NavMeshAgent agent;
     private Animator sprite;
     private bool dead = false;
@@ -18,6 +18,9 @@ public class Enemy : MonoBehaviour {
 
     private CooldownTimer usePunch;
     private ExpirationTimer punching;
+    private float moveSpeed;
+
+    private int layerMask = 0;
 
     private Vector3 Direction() {
         if (agent.velocity.sqrMagnitude < 1) {
@@ -35,6 +38,10 @@ public class Enemy : MonoBehaviour {
 
         usePunch = new CooldownTimer(1.0f);
         punching = new ExpirationTimer(0.5f);
+        alertness = 0;
+        moveSpeed = agent.speed;
+
+        layerMask = int.MaxValue;
     }
 
     private bool reachedDest() {
@@ -72,7 +79,7 @@ public class Enemy : MonoBehaviour {
     }
 
     public bool PlayerInView() {
-        Vector3 toPlayer = target.position - transform.position;
+        Vector3 toPlayer = target.GetChild(0).position - transform.position;
         Vector3 forward = Direction();
 
         if (Vector3.SqrMagnitude(toPlayer) < 400 && Vector3.Angle(toPlayer, forward) < 45) {
@@ -93,6 +100,11 @@ public class Enemy : MonoBehaviour {
         alertness += amount;
         if (alertness >= 1.0f && f < 1.0f) {
             GetComponent<AudioSource>().Play();
+            agent.speed = 8;
+        }
+
+        if (alertness > 4) {
+            alertness = 4;
         }
     }
 
@@ -117,12 +129,15 @@ public class Enemy : MonoBehaviour {
 
         if (!dead) {
 
-            if (alertness < 1.0f && PlayerInView()) {
-                float r = 10.0f;
+            if (alertness < 4.0f && PlayerInView()) {
+                float r = 20.0f;
                 if (target.GetComponentInChildren<Light>().enabled) {
-                    r = 20.0f;
+                    r = 100.0f;
                 }
-                Alert(r / Vector3.Magnitude(transform.position - target.position));
+                float f = r / Vector3.Magnitude(transform.position - target.position);
+                if (f > 0.5f) {
+                    Alert(f * Time.deltaTime);
+                }
             }
 
             float d = Vector3.Dot(toPlayer, forward);
@@ -141,6 +156,12 @@ public class Enemy : MonoBehaviour {
 
             sprite.SetBool("Punching", !punching.Expired);
             
+            if (!PlayerInView()) {
+                alertness -= Time.deltaTime * 0.2f;
+                if (alertness < 1) {
+                    agent.speed = moveSpeed;
+                }
+            }
 
             if (alertness >= 1.0f) {
                 Vector3 lastPos = transform.position;
@@ -153,12 +174,10 @@ public class Enemy : MonoBehaviour {
                     if (Physics.Raycast(transform.position, target.position - transform.position, out hit, 2.0f)) {
                         PlayerControl player = hit.transform.GetComponent<PlayerControl>();
                         if (player != null) {
-                            player.Damage(25);
+                            player.Damage(15);
                         }
                     }
                 }
-
-
             } else if (investigate) {
                 agent.destination = investigatePoint;
 
@@ -171,7 +190,9 @@ public class Enemy : MonoBehaviour {
                 if (reachedDest()) {
                     //print("Next Waypoint");
                     patrolTarget = patrolTarget.next;
-                    agent.destination = patrolTarget.transform.position;
+                    if (patrolTarget != null) {
+                        agent.destination = patrolTarget.transform.position;
+                    }
                 }
             }
         }
