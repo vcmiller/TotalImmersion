@@ -11,6 +11,12 @@ public class Pistol : Weapon {
 
             if (firing && ammo > 0) {
                 ammo--;
+
+                foreach (Enemy enemy in FindObjectsOfType<Enemy>()) {
+                    enemy.Alert(20.0f / Vector3.Distance(transform.position, enemy.transform.position));
+                }
+
+
                 AudioSource.PlayClipAtPoint(shotSound, transform.position);
                 RaycastHit hit;
                 if (Physics.Raycast(player.head.position, player.head.forward, out hit)) {

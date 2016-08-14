@@ -3,11 +3,14 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour {
     private Transform target;
-    public bool alerted = false;
+    private float alertness = 0;
     private NavMeshAgent agent;
     private Animator sprite;
     private bool dead = false;
     public AudioClip hurtSound;
+
+    public Vector3 investigatePoint;
+    public bool investigate = false;
 
     public Waypoint patrolTarget;
 
@@ -35,11 +38,17 @@ public class Enemy : MonoBehaviour {
     }
 
     private bool reachedDest() {
-        return Vector3.SqrMagnitude(transform.position - patrolTarget.transform.position) < .1f;
+        //Vector3 dest = patrolTarget.transform.position;
+        //if (investigate) {
+        //    dest = investigatePoint;
+        //}
+        //return Vector3.SqrMagnitude(transform.position - dest) < .1f;
+        return agent.remainingDistance < 0.2f;
     }
 
     public void Damage(float damage) {
         Health -= damage;
+        Alert(1.0f);
 
         if (!dead) {
             AudioSource.PlayClipAtPoint(hurtSound, transform.position);
@@ -55,6 +64,10 @@ public class Enemy : MonoBehaviour {
             dead = true;
             sprite.SetBool("Dead", true);
             agent.enabled = false;
+
+            foreach (AudioSource src in GetComponents<AudioSource>()) {
+                Destroy(src);
+            }
         }
     }
 
@@ -73,6 +86,14 @@ public class Enemy : MonoBehaviour {
         }
 
         return false;
+    }
+
+    public void Alert(float amount) {
+        float f = alertness;
+        alertness += amount;
+        if (alertness >= 1.0f && f < 1.0f) {
+            GetComponent<AudioSource>().Play();
+        }
     }
 
     // Update is called once per frame
@@ -96,8 +117,12 @@ public class Enemy : MonoBehaviour {
 
         if (!dead) {
 
-            if (!alerted && PlayerInView()) {
-                alerted = true;
+            if (alertness < 1.0f && PlayerInView()) {
+                float r = 10.0f;
+                if (target.GetComponentInChildren<Light>().enabled) {
+                    r = 20.0f;
+                }
+                Alert(r / Vector3.Magnitude(transform.position - target.position));
             }
 
             float d = Vector3.Dot(toPlayer, forward);
@@ -115,35 +140,38 @@ public class Enemy : MonoBehaviour {
             }
 
             sprite.SetBool("Punching", !punching.Expired);
-
             
 
-
-            if (alerted) {
+            if (alertness >= 1.0f) {
                 Vector3 lastPos = transform.position;
-                Vector3 targetPos;
-                
-                targetPos = target.position;
+
+                agent.destination = target.transform.position;
 
                 if (Vector3.SqrMagnitude(transform.position - target.position) < 4.0f && usePunch.Use) {
                     punching.Set();
                     RaycastHit hit;
                     if (Physics.Raycast(transform.position, target.position - transform.position, out hit, 2.0f)) {
-                        print(hit.transform.name);
                         PlayerControl player = hit.transform.GetComponent<PlayerControl>();
                         if (player != null) {
                             player.Damage(25);
                         }
                     }
                 }
-                
-                agent.destination = targetPos;
-                
-            } else if (patrolTarget != null) {
-                agent.destination = patrolTarget.transform.position;
+
+
+            } else if (investigate) {
+                agent.destination = investigatePoint;
 
                 if (reachedDest()) {
+                    //print("Stop Investigating");
+                    investigate = false;
+                }
+            } else if (patrolTarget != null) {
+                agent.destination = patrolTarget.transform.position;
+                if (reachedDest()) {
+                    //print("Next Waypoint");
                     patrolTarget = patrolTarget.next;
+                    agent.destination = patrolTarget.transform.position;
                 }
             }
         }
