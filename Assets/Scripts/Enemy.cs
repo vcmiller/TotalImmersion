@@ -133,7 +133,7 @@ public class Enemy : MonoBehaviour {
         if (!dead) {
 
             if (alertness < 4.0f && PlayerInView()) {
-                float r = 20.0f;
+                float r = 10.0f;
                 if (target.GetComponentInChildren<Light>().enabled) {
                     r *= 2.5f;
                 }
