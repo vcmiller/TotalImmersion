@@ -139,6 +139,7 @@ public class PlayerControl : MonoBehaviour {
             weapons[ActiveWeapon].SetActive(true);
         }
 
+
     }
 
     private bool IsGrounded() {
