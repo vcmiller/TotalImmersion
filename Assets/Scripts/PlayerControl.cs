@@ -69,7 +69,7 @@ public class PlayerControl : MonoBehaviour {
         if (ladders > 0) {
             rigidbody.useGravity = false;
             if (Input.GetAxis("Vertical") != 0) {
-                transform.position += Vector3.up * Input.GetAxis("Vertical") * Time.deltaTime * climbSpeed;
+                transform.position += Vector3.up * Time.deltaTime * climbSpeed;
             } else {
                 transform.position += Vector3.down * Time.deltaTime * climbSpeed;
             }
